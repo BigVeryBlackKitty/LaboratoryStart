@@ -1,0 +1,27 @@
+FROM shinsenter/laravel:latest
+
+WORKDIR /var/www/html
+
+# Копируем entrypoint
+COPY docker/backend/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Копируем код
+COPY . .
+
+# Устанавливаем зависимости
+RUN if [ -f composer.json ]; then composer install --no-interaction --no-progress; fi
+
+# Создаем папки при сборке
+RUN mkdir -p storage/framework/cache \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p storage/framework/testing \
+    && mkdir -p storage/logs \
+    && mkdir -p bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap \
+    && chmod -R 775 storage bootstrap/cache
+
+EXPOSE 80 443
+
+ENTRYPOINT ["/entrypoint.sh"]

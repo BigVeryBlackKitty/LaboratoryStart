@@ -1,0 +1,20 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Создаем package.json с нужными зависимостями
+RUN echo '{"name":"vue-app","version":"0.0.0","private":true,"scripts":{"dev":"vite --host 0.0.0.0 --port 5173","build":"vite build","preview":"vite preview"},"dependencies":{"vue":"^3.3.4"},"devDependencies":{"@vitejs/plugin-vue":"^4.4.0","vite":"^4.4.9"}}' > package.json
+
+# Устанавливаем зависимости одной командой
+RUN npm install
+
+# Создаем минимальную структуру файлов
+RUN mkdir -p src && \
+    echo 'import { createApp } from "vue"; import App from "./App.vue"; createApp(App).mount("#app");' > src/main.js && \
+    echo '<template><div style="text-align:center;padding:50px"><h1>🚀 Vue работает!</h1><button @click="count++">Нажато: {{ count }}</button></div></template><script setup>import { ref } from "vue"; const count = ref(0);</script>' > src/App.vue && \
+    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Vue</title></head><body><div id="app"></div><script type="module" src="/src/main.js"></script></body></html>' > index.html && \
+    echo 'import { defineConfig } from "vite"; import vue from "@vitejs/plugin-vue"; export default defineConfig({ plugins: [vue()], server: { host: "0.0.0.0", port: 5173, strictPort: true, watch: { usePolling: true } } });' > vite.config.js
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]
