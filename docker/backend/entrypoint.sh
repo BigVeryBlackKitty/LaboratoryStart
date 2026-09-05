@@ -3,6 +3,12 @@ set -e
 
 echo "🚀 Запуск Laravel..."
 
+if [ ! -f artisan ]; then
+    echo "📦 Laravel не найден. Устанавливаем..."
+    composer create-project laravel/laravel /var/www/html --prefer-dist --no-interaction
+    echo "✅ Laravel установлен!"
+fi
+
 # Создаем все необходимые папки
 echo "📁 Создаем папки..."
 mkdir -p storage/framework/cache
